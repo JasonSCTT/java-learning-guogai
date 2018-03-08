@@ -14,7 +14,7 @@
 
 ![](https://i.imgur.com/p9KuGv7.png)
 
-先放一张整体的容器图，在了解容器之前，我们先来看看容器的工具类`Collections`.我有一个习惯，就是每看一个项目之前会先去commons.util包中看看。有哪些抽取出来的工具类。在正式进入主题之前先考大家一个问题，`synchronizedList()`、`synchronizedSet()`、`synchronizedMap()` 这三个方法有啥作用呢？当然让他们 变为同步的咯，那怎么变成的呢？我也要其。
+先放一张整体的容器图，在了解容器之前，我们先来看看容器的工具类`Collections`.我有一个习惯，就是每看一个项目之前会先去commons.util包中看看。有哪些抽取出来的工具类。在正式进入主题之前先考大家一个问题，`synchronizedList()`、`synchronizedSet()`、`synchronizedMap()` 这三个方法有啥作用呢？当然让他们变为同步的咯，那怎么变成的呢？其实我也想知道。
 
 首先主要注意的是不会看全部方法，只会看一些常用的，多个重载的只看一个。
 
@@ -1047,127 +1047,10 @@ public static <T> boolean addAll(Collection<? super T> c, T... elements) {
         public boolean containsAll(Collection<?> c) {return q.containsAll(c);}
         public boolean removeAll(Collection<?> c)   {return q.removeAll(c);}
         public boolean retainAll(Collection<?> c)   {return q.retainAll(c);}
-        // We use inherited addAll; forwarding addAll would be wrong
+        // We use inherited addAll; forwarding addAll would be wrong  转发的时候可能会出错。
     }
 ```
 
+`Collections`到这里算是结束了，中午时再看来看看Collection中的方法，其具体实现在子子类中。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--
+晚安，早安。gogogo～收获蛮大的。
