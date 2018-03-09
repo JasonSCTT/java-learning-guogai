@@ -702,4 +702,207 @@ public class Vector<E>extends AbstractList<E>
   */
 publicclass Stack<E> extends Vector<E> { ...}
 ```
+
+
+首先需要注意的是它继承自`AbstractCollection`具备了它里面的所有方法，自己又额外添加了一些索引方法的
+```java
+package java.util;
+
+/**
+ * This class provides a skeletal implementation of the {@link List}
+ * interface to minimize the effort required to implement this interface
+ * backed by a "random access" data store (such as an array).  For sequential
+ * access data (such as a linked list), {@link AbstractSequentialList} should
+ * be used in preference to this class.
+ */
+
+public abstract class AbstractList<E> extends AbstractCollection<E> implements List<E> {
+    // Search Operations
+
+    /**
+     * <p>This implementation first gets a list iterator (with
+     * {@code listIterator()}).  Then, it iterates over the list until the
+     * specified element is found or the end of the list is reached.
+     */
+    public int indexOf(Object o) {
+        ListIterator<E> it = listIterator();      //注意调用的是ListIterator
+        if (o==null) {
+            while (it.hasNext())
+                if (it.next()==null)
+                    return it.previousIndex();     //这里返回的是上一个索引位置的。
+        } else {
+            while (it.hasNext())
+                if (o.equals(it.next()))
+                    return it.previousIndex();
+        }
+        return -1;
+    }
+
+    /**
+     * <p>This implementation first gets a list iterator that points to the end
+     * of the list (with {@code listIterator(size())}).
+     */
+    public int lastIndexOf(Object o) {
+        ListIterator<E> it = listIterator(size());
+        if (o==null) {
+            while (it.hasPrevious())
+                if (it.previous()==null)
+                    return it.nextIndex();    //返回下一个位置的索引
+        } else {
+            while (it.hasPrevious())
+                if (o.equals(it.previous()))
+                    return it.nextIndex();
+        }
+        return -1;
+    }
+
+
+    // Bulk Operations
+
+    /**
+     * Removes all of the elements from this list (optional operation).
+     * The list will be empty after this call returns.
+     */
+    public void clear() {
+        removeRange(0, size());
+    }
+-------------------------------------------------------------------------------
+/**
+  * Removes from this list all of the elements whose index is between
+  * {@code fromIndex}, inclusive, and {@code toIndex}, exclusive.
+  * Shifts any succeeding elements to the left (reduces their index).
+  */
+ protected void removeRange(int fromIndex, int toIndex) {
+     ListIterator<E> it = listIterator(fromIndex);
+     for (int i=0, n=toIndex-fromIndex; i<n; i++) {
+         it.next();
+         it.remove();
+     }
+ }
+ -----------------------------------------------------------------------------
+    /**
+     * {@inheritDoc}
+     *
+     * <p>This implementation gets an iterator over the specified collection
+     * and iterates over it, inserting the elements obtained from the
+     * iterator into this list at the appropriate position, one at a time,
+     * using {@code add(int, E)}.
+     */
+    public boolean addAll(int index, Collection<? extends E> c) {
+        rangeCheckForAdd(index);      //检查范围
+        boolean modified = false;
+        for (E e : c) {
+            add(index++, e);          //循环进行添加，
+            modified = true;         //完成之后修改标记
+        }
+        return modified;
+    }
+--------------------------------------------------------------------------------
+/**
+ * The number of times this list has been <i>structurally modified</i>.
+ * Structural modifications are those that change the size of the
+ * list, or otherwise perturb it in such a fashion that iterations in
+ * progress may yield incorrect results.
+ */
+protected transient int modCount = 0;
+
+private void rangeCheckForAdd(int index) {
+    if (index < 0 || index > size())          //抛出越界异常，
+        throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+
+  // Comparison and hashing   比较与哈希。
+
+  /**
+   * Compares the specified object with this list for equality.  Returns
+   * {@code true} if and only if the specified object is also a list, both
+   * lists have the same size, and all corresponding pairs of elements in
+   * the two lists are <i>equal</i>.
+   */
+  public boolean equals(Object o) {
+      if (o == this)                    //1.判断是否是当前对象
+          return true;
+      if (!(o instanceof List))         //2、是List的实例吗？
+          return false;
+
+      ListIterator<E> e1 = listIterator();
+      ListIterator e2 = ((List) o).listIterator();
+      while (e1.hasNext() && e2.hasNext()) {       //两个都不能为空，
+          E o1 = e1.next();
+          Object o2 = e2.next();
+          if (!(o1==null ? o2==null : o1.equals(o2)))   //这里使用了三目运算，
+              return false;
+      }
+      return !(e1.hasNext() || e2.hasNext());
+  }
+
+  /**
+   * Returns the hash code value for this list.
+   */
+  public int hashCode() {
+      int hashCode = 1;
+      for (E e : this)
+          hashCode = 31*hashCode + (e==null ? 0 : e.hashCode());     //31是素数
+      return hashCode;
+  }
+
+```
+### iterator（重点）
+```java
+-------------------------之前讲过了设计的很精妙------------------------------------
+    // Iterators
+
+    /**
+     * Returns an iterator over the elements in this list in proper sequence.
+     */
+    public Iterator<E> iterator() {                         //3
+        return new Itr();
+    }
+
+    /**
+     * <p>This implementation returns {@code listIterator(0)}.
+     */
+    public ListIterator<E> listIterator() {
+        return listIterator(0);                               // 1
+    }
+
+    public ListIterator<E> listIterator(final int index) {    //2
+
+        return new ListItr(index);
+    }
+-------------------------------------------------------------------------------
+
+    private class Itr implements Iterator<E> {      //注意这里，实现  //4
+
+        public boolean hasNext() {..}
+        public E next() {..}
+        public void remove() {..}
+    }
+---------------------------------------------------------------------------------
+    private class ListItr extends Itr implements ListIterator<E> {  //这里继承又实现。
+        ListItr(int index) {
+            cursor = index;
+        }
+
+        public boolean hasPrevious() {
+            return cursor != 0;
+        }
+
+        public E previous() {...}
+
+        public int nextIndex() {
+            return cursor;
+        }
+
+        public int previousIndex() {
+            return cursor-1;
+        }
+
+        public void set(E e) {...  }
+
+        public void add(E e) {...}
+    }
+
+```
+
 先到这里吧，下一个主题具体到ArrayList和LinkdedList。gogogo。
