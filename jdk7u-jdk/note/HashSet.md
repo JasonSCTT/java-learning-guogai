@@ -1,4 +1,6 @@
-Java容器之Set分析(六)
+![](https://user-gold-cdn.xitu.io/2018/3/11/162114a3f0e8af6c?w=640&h=360&f=jpeg&s=62834)
+
+本文属于学习笔记，合适自己的就是最好的学习方式。
 
 ## 说明
 - 1、本文是基于JDK 7 分析的。JDK 8 待我工作了得好好研究下。Lambda、Stream。
